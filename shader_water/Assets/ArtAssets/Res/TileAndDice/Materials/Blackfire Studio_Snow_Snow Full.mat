@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Blackfire Studio_Snow_Snow Full
+  m_Shader: {fileID: 4800000, guid: 24eb35485dfb4f843a52b6b9528f8a2e, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _GlitterTex:
+        m_Texture: {fileID: 2800000, guid: 88ad46aa4fe4d064aaaf298fdd43ab49, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 4c66c4264107279438d568d7d3dc319c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 1, y: 1}
+    m_Floats:
+    - _Aniso: 0.053
+    - _Density: 1.2
+    - _DensityStatic: 3.5
+    - _Glitter: 0
+    - _Hue: 0
+    - _Lightness: 0
+    - _Outline: 0
+    - _Power: 1
+    - _RimEnable: 1
+    - _RimMax: 1
+    - _RimMin: 1
+    - _Saturation: 0
+    - _Shininess: 0.02
+    - _Specular: 0.74
+    - _Speed: 0
+    - _Transform: 0
+    m_Colors:
+    - _Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+    - _GlitterScale: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0.83823526, g: 0.6286764, b: 0.6286764, a: 1}
+    - _RimColor: {r: 1, g: 1, b: 1, a: 0.847}
+    - _SColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecularColor: {r: 0.9862069, g: 1, b: 0, a: 1}
