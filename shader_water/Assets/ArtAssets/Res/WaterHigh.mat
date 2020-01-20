@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WaterMiddle
-  m_Shader: {fileID: 4800000, guid: 0bc4bc4ab5b33b54197b005e05d397c7, type: 3}
+  m_Name: WaterHigh
+  m_Shader: {fileID: 4800000, guid: 2f43ad3b54e5df74092b218486dc2f04, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -58,7 +58,9 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
+    - _Deep: 0.3
     - _DetailNormalMapScale: 1
+    - _Dirty: 1
     - _DstBlend: 0
     - _Gloss: 1
     - _GlossMapScale: 1
@@ -77,5 +79,5 @@ Material:
     - _BumpMap2ST: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MainColor: {r: 0.8424074, g: 0.8490566, b: 0.73291206, a: 1}
+    - _MainColor: {r: 1, g: 1, b: 1, a: 1}
     - _WaveSpeed: {r: 0, g: 0, b: 0, a: 0}
