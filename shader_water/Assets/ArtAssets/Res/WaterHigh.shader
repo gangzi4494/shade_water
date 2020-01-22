@@ -17,10 +17,14 @@
 
 			_Deep("Deep", range(0.1, 2)) = 0.3
 			_Dirty("Dirty", range(0, 1)) = 1
+
+		 _fresnelBase("fresnelBase", Range(0, 1)) = 0
+		_fresnelScale("fresnelScale", Range(0, 1)) = 1
+		_fresnelIndensity("fresnelIndensity", Range(0, 5)) = 5
 	}
 		SubShader
 		{
-			Tags { "RenderType" = "Opaque" }
+			Tags { "Queue" = "Transparent" "RenderType" = "Water"  }
 			LOD 100
 
 			Pass
@@ -93,6 +97,11 @@
 				float _Deep;
 				half _Dirty;
 
+				////
+				float _fresnelBase;
+				float _fresnelScale;
+				float _fresnelIndensity;
+
 
 				v2f vert(appdata v)
 				{
@@ -104,9 +113,12 @@
 					float4x4 modelMatrix = unity_ObjectToWorld;
 
 					float4 moveLength = _WaveSpeed * _Time.x;
+
 					/// 法线贴图坐标
+
 					o.uvbump.xy = TRANSFORM_TEX(v.texcoord, _BumpMap) + moveLength.xy;
 					o.uvbump.zw = v.texcoord.xy * _BumpMap2ST.xy + _BumpMap2ST.zw + moveLength.zw;
+
 					///计算切线空间  需要  两个转换矩阵
 					o.worldPosition = mul(modelMatrix, v.vertex);
 					o.worldNormal = normalize(mul(float4(v.normal, 0.0), modelMatrixInverse).xyz);
@@ -115,14 +127,15 @@
 					///
 
 					/// 折射
-#if UNITY_UV_STARTS_AT_TOP
-					float scale = -1.0;
-#else
-					float scale = 1.0;
-#endif
-					o.uvgrab.xy = (float2(o.vertex.x, o.vertex.y*scale) + o.vertex.w) * 0.5;
-					o.uvgrab.zw = o.vertex.zw;
+//#if UNITY_UV_STARTS_AT_TOP
+//					float scale = -1.0;
+//#else
+//					float scale = 1.0;
+//#endif
+//					o.uvgrab.xy = (float2(o.vertex.x, o.vertex.y*scale) + o.vertex.w) * 0.5;
+//					o.uvgrab.zw = o.vertex.zw;
 
+					o.uvgrab = ComputeGrabScreenPos(o.vertex);
 
 					o.projPos = ComputeScreenPos(o.vertex);
 
@@ -141,14 +154,15 @@
 					/// 根据法线贴图计算法线    
 					// 1 需要法线贴图坐标
 					half3 bump = UnpackNormal(tex2D(_BumpMap, i.uvbump.xy)); // we could optimize this by just reading the x & y without reconstructing the Z
-					/*half3 bump1 = UnpackNormal(tex2D(_BumpMap, i.uvbump.zw));
-					float3 localNormal = (bump + bump1) * 0.5;*/
-					float3 localNormal = bump;
+					half3 bump1 = UnpackNormal(tex2D(_BumpMap, i.uvbump.zw));
+					float3 localNormal = (bump + bump1) * 0.5;
+
+					//float3 localNormal = bump;
 
 					///
 					float3 localCoords = localNormal * 0.01;
 					// * i.uvgrab.z
-					i.uvgrab.xy = localCoords.rg * i.uvgrab.z + i.uvgrab.xy;
+					//i.uvgrab.xy = localCoords.rg * i.uvgrab.z + i.uvgrab.xy;
 
 
 					// 根据切线空间   计算世界法线
@@ -217,29 +231,42 @@
 
 
 					///计算菲涅尔
-					float _distance = distance(i.worldPosition.xyz, _WorldSpaceCameraPos);
+				/*	float _distance = distance(i.worldPosition.xyz, _WorldSpaceCameraPos);
 					float fresnelMax = min(pow(_distance / 40, 1.3), 0.7);
-					float fresnel = clamp(pow(1 - dot(viewDirection, normalDirection), 0.5), 0.2, fresnelMax);
+					float fresnel = clamp(pow(1 - dot(viewDirection, normalDirection), 0.5), 0.2, fresnelMax);*/
 
 
 					///折射
-					half4 refractionColor = tex2Dproj(_PreSceneTex, UNITY_PROJ_COORD(i.uvgrab));
-					refractionColor.a = 1.0;
+					half4 refractionColor = tex2Dproj(_PreSceneTex, i.uvgrab); //tex2Dproj(_PreSceneTex, UNITY_PROJ_COORD(i.uvgrab));
+					//refractionColor.a = 1.0;
 
-					//compute depth
-					float sceneZ = max(0, LinearEyeDepth(UNITY_SAMPLE_DEPTH(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)))) - _ProjectionParams.g);
-					float partZ = max(0, i.projPos.z - _ProjectionParams.g);
-					//half depthBlend1 = saturate((sceneZ - partZ) / (_ProjectionParams.b - _ProjectionParams.g) * 300);
-					half depthBlend1 = saturate((sceneZ - partZ) * _Deep);
-					half multi1 = pow(depthBlend1, 0.5);// depthBlend1 * depthBlend1;
+					////compute depth
+					//float sceneZ = max(0, LinearEyeDepth(UNITY_SAMPLE_DEPTH(tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(i.projPos)))) - _ProjectionParams.g);
+					//float partZ = max(0, i.projPos.z - _ProjectionParams.g);
+					////half depthBlend1 = saturate((sceneZ - partZ) / (_ProjectionParams.b - _ProjectionParams.g) * 300);
+					//half depthBlend1 = saturate((sceneZ - partZ) * _Deep);
+					//half multi1 = pow(depthBlend1, 0.5);// depthBlend1 * depthBlend1;
 
-					half4 sceneColor = lerp(refractionColor, lerp(waterColor * refractionColor, waterColor, _Dirty), multi1);
+					half4 sceneColor = refractionColor;// lerp(refractionColor, lerp(waterColor * refractionColor, waterColor, _Dirty), multi1);
 
 					// sample the texture
 					//fixed4 col = tex2D(_MainTex, i.uv);
 					half4 c = half4(0, 0, 0, 1.0);
 
-					c.rgb = waterColor.rgb * (gi.indirect.specular.rgb + directSpecular) * 1;
+
+					//菲尼尔公式  normalDirection  viewDirection
+					//float fresnel = _fresnelBase + _fresnelScale * pow(1 - dot(N, V), _fresnelIndensity);
+					float _distance = distance(i.worldPosition.xyz, _WorldSpaceCameraPos);
+					float fresnelMax = min(pow(_distance / 40, 1.3), 0.7);
+					// clamp(fresnel_vew, 0.2, fresnelMax);
+
+					float fresnel_vew = _fresnelBase + _fresnelScale * pow(1 - dot(normalDirection, viewDirection), _fresnelIndensity);
+					
+					float fresnel = clamp(fresnel_vew, 0.2, fresnelMax);
+
+					//c.rgb = waterColor.rgb * (gi.indirect.specular.rgb + directSpecular) * 1;
+					c.rgb = sceneColor.rgb * fresnel +(gi.indirect.specular.rgb + directSpecular) * (1 - fresnel);
+
 					//c.a = 0.4;
 					// apply fog
 					//UNITY_APPLY_FOG(i.fogCoord, col);
